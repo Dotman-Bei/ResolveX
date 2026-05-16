@@ -214,16 +214,23 @@ const getClient = (account?: Address) => {
 
 const normalizeAddress = (value: unknown): string => {
   if (!value) return "";
-  if (typeof value === "string") return value;
-  if (typeof value === "object" && "bytes" in value && value.bytes instanceof Uint8Array) {
-    return `0x${Array.from(value.bytes)
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("")}`;
+  if (typeof value === "string") return value.toLowerCase();
+  if (typeof value === "object") {
+    const v = value as Record<string, unknown>;
+    if (v.bytes instanceof Uint8Array) {
+      return `0x${Array.from(v.bytes)
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("")}`;
+    }
+    if (typeof v.address === "string") return v.address.toLowerCase();
+    if (typeof v.hex === "string") return v.hex.toLowerCase();
+    // Last-ditch: many wallet/SDK address classes implement toString() → 0x…
+    if (typeof (value as { toString?: () => string }).toString === "function") {
+      const s = (value as { toString: () => string }).toString();
+      if (/^0x[a-fA-F0-9]{40}$/.test(s)) return s.toLowerCase();
+    }
   }
-  if (typeof value === "object" && "address" in value && typeof value.address === "string") {
-    return value.address;
-  }
-  return String(value);
+  return "";
 };
 
 const toNumber = (value: unknown) => {

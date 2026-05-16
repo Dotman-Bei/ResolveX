@@ -226,7 +226,16 @@ def _build_sources(category: str, question: str) -> list[str]:
                     f"?symbol={symbol}&interval=1M&limit=200"
                 )
 
-    elif category == "sports":
+    # Google News RSS — free, no key, returns ~50 recent matching articles
+    # with title/description/pubDate/source. Best single signal for any
+    # event-based question because it surfaces current news headlines.
+    google_news = (
+        f"https://news.google.com/rss/search?q={q_enc}"
+        "&hl=en-US&gl=US&ceid=US:en"
+    )
+
+    if category == "sports":
+        sources.append(google_news)
         sources.append(
             f"https://www.thesportsdb.com/api/v1/json/3/searchevents.php?e={q_enc}"
         )
@@ -245,6 +254,7 @@ def _build_sources(category: str, question: str) -> list[str]:
         )
 
     elif category == "tech":
+        sources.append(google_news)
         sources.append(
             f"https://hn.algolia.com/api/v1/search?query={q_enc}&tags=story"
         )
@@ -255,6 +265,7 @@ def _build_sources(category: str, question: str) -> list[str]:
         )
 
     else:  # politics, entertainment, world (and unknown)
+        sources.append(google_news)
         sources.append(
             "https://en.wikipedia.org/w/api.php?action=query&format=json"
             f"&generator=search&gsrsearch={q_enc}&gsrlimit=4"
@@ -355,6 +366,7 @@ class PredictionMarket(gl.Contract):
                         or "api.coingecko.com" in url
                         or "thesportsdb.com" in url
                         or "market_chart" in url
+                        or "news.google.com" in url
                     )
                     cap = 25000 if is_structured else 6000
                     gathered += f"\n\n--- {url} ---\n{page[:cap]}"
@@ -365,6 +377,9 @@ class PredictionMarket(gl.Contract):
 
 The data below comes from authoritative structured sources:
   - CoinGecko price API for crypto questions (JSON with current price, ATH, 365d history)
+  - Google News RSS for current-event headlines across every non-crypto category
+    (XML with <title>, <description>, <pubDate>, <source> per article — read
+     the headlines and dates as your primary signal for "did X happen recently")
   - TheSportsDB, Wikipedia, and Wikidata JSON for sports events and tournament results
   - Hacker News search JSON for tech news
   - Wikipedia REST/Query API extracts for everything else
