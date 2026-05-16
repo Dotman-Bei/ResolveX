@@ -37,14 +37,19 @@ export default function PortfolioPage() {
     );
   }
 
-  const myMarkets = markets.filter((m) => m.bets.some((b) => b.user === user));
-  const created = markets.filter((m) => m.creator === user);
+  // Ethereum addresses are case-insensitive — the contract returns lowercase
+  // while wallets emit EIP-55 mixed-case, so we have to normalize before
+  // comparing. Without this, "Markets created" perpetually reads zero.
+  const me = user.toLowerCase();
+  const eq = (addr: string) => addr.toLowerCase() === me;
+  const myMarkets = markets.filter((m) => m.bets.some((b) => eq(b.user)));
+  const created = markets.filter((m) => eq(m.creator));
   const totalStaked =
     myMarkets.reduce(
       (s, m) =>
         s +
         m.bets
-          .filter((b) => b.user === user)
+          .filter((b) => eq(b.user))
           .reduce((ss, b) => ss + b.amount, 0),
       0
     ) / 1e18;
@@ -101,7 +106,7 @@ export default function PortfolioPage() {
             </div>
           )}
           {myMarkets.map((m, i) => {
-            const myBets = m.bets.filter((b) => b.user === user);
+            const myBets = m.bets.filter((b) => eq(b.user));
             const stake = myBets.reduce((s, b) => s + b.amount, 0);
             const sides = Array.from(new Set(myBets.map((b) => b.side))).join(", ");
             return (

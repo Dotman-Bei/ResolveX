@@ -739,24 +739,14 @@ export const useGenLayer = create<Store>()(
       reset: () => set({ markets: seedMarkets() }),
     }),
     {
-      name: "resolvex-store-v3",
+      // Bumping the storage key wipes stale identity from older sessions so
+      // returning visitors don't hydrate back into a phantom "connected" state.
+      name: "resolvex-store-v4",
+      // Never persist identity (user / connected / walletRdns / walletName)
+      // or the `live` flag — every visit must start disconnected and re-derive
+      // mode from env. Only mock-mode user-generated markets get cached.
       partialize: (state) =>
-        state.live
-          ? {
-              user: state.user,
-              connected: state.connected,
-              live: state.live,
-              walletRdns: state.walletRdns,
-              walletName: state.walletName,
-            }
-          : {
-              user: state.user,
-              connected: state.connected,
-              live: state.live,
-              walletRdns: state.walletRdns,
-              walletName: state.walletName,
-              markets: state.markets,
-            },
+        state.live ? {} : { markets: state.markets },
     }
   )
 );
