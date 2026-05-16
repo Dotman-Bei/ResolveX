@@ -61,6 +61,29 @@ interface Eip6963AnnounceEvent extends CustomEvent {
   };
 }
 
+/**
+ * Imperative one-shot EIP-6963 discovery — fires the `requestProvider` event,
+ * registers anything that announces within a short window, then resolves.
+ * Used at app boot to populate the provider registry before the silent
+ * reconnect tries to look up the user's previously chosen wallet by rdns.
+ */
+export function discoverProvidersOnce(timeoutMs = 250): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") return resolve();
+    const onAnnounce = (event: Event) => {
+      const e = event as Eip6963AnnounceEvent;
+      const { info, provider } = e.detail;
+      if (info?.rdns) registerProvider(info.rdns, provider);
+    };
+    window.addEventListener("eip6963:announceProvider", onAnnounce);
+    window.dispatchEvent(new Event("eip6963:requestProvider"));
+    window.setTimeout(() => {
+      window.removeEventListener("eip6963:announceProvider", onAnnounce);
+      resolve();
+    }, timeoutMs);
+  });
+}
+
 export function useWallets() {
   const [detected, setDetected] = useState<DetectedWallet[]>([]);
 

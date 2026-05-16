@@ -515,6 +515,7 @@ interface Store {
   markets: Market[];
   connect: (options?: { rdns?: string; name?: string }) => Promise<void>;
   disconnect: () => void;
+  reconnectSilent: () => Promise<void>;
   refresh: () => Promise<void>;
   createMarket: (q: string, category: Category, resolutionDate: string) => Promise<string>;
   placeBet: (marketId: string, side: Side, amount: number) => Promise<void>;
@@ -578,6 +579,38 @@ export const useGenLayer = create<Store>()(
           walletName: undefined,
           status: liveConfigured() ? "Live GenLayer mode" : "Mock demo mode",
         });
+      },
+
+      // Re-bind to the previously chosen wallet without prompting. Uses
+      // `eth_accounts` (no popup) — if the wallet still authorizes this
+      // origin, we get the account back and slide silently into a connected
+      // state. If it doesn't, nothing happens and the Connect button stays.
+      reconnectSilent: async () => {
+        if (!liveConfigured()) return;
+        const rdns = get().walletRdns;
+        if (!rdns) return;
+        try {
+          // Import lazily so the lib stays free of React-only imports.
+          const { discoverProvidersOnce } = await import("./wallets");
+          await discoverProvidersOnce();
+          const provider = resolveProvider(rdns);
+          if (!provider) return;
+          const accounts = (await provider.request({ method: "eth_accounts" })) as
+            | string[]
+            | undefined;
+          if (!accounts || accounts.length === 0) return;
+          const account = accounts[0] as Address;
+          getClient(account);
+          set({
+            user: account,
+            connected: true,
+            live: true,
+            status: "Connected to GenLayer",
+          });
+        } catch {
+          // Silent reconnect must never throw into the UI — worst case we
+          // simply stay disconnected and the user clicks Connect.
+        }
       },
 
       refresh: async () => {
@@ -741,12 +774,23 @@ export const useGenLayer = create<Store>()(
     {
       // Bumping the storage key wipes stale identity from older sessions so
       // returning visitors don't hydrate back into a phantom "connected" state.
-      name: "resolvex-store-v4",
-      // Never persist identity (user / connected / walletRdns / walletName)
-      // or the `live` flag — every visit must start disconnected and re-derive
-      // mode from env. Only mock-mode user-generated markets get cached.
+      name: "resolvex-store-v5",
+      // Persist only the chosen wallet hint (`walletRdns` + `walletName`)
+      // and mock-mode markets. NEVER persist `connected` or `user` — those
+      // must be re-derived via `reconnectSilent()` at boot so a brand-new
+      // visitor sees the Connect button while a returning user gets a
+      // popup-free auto-reconnect if their wallet still authorizes the site.
       partialize: (state) =>
-        state.live ? {} : { markets: state.markets },
+        state.live
+          ? {
+              walletRdns: state.walletRdns,
+              walletName: state.walletName,
+            }
+          : {
+              walletRdns: state.walletRdns,
+              walletName: state.walletName,
+              markets: state.markets,
+            },
     }
   )
 );
