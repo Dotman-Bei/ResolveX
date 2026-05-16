@@ -107,7 +107,7 @@ export default function CreatePage() {
                 setCat(inferMarketCategory(next, cat));
               }}
               placeholder="e.g. Will Bitcoin reach $200,000 before January 2027?"
-              className="input resize-none headline text-lg sm:text-2xl md:text-3xl leading-snug py-3 sm:py-4 placeholder:text-fg-faint"
+              className="input resize-none headline text-base sm:text-xl md:text-2xl lg:text-3xl leading-snug py-3 sm:py-4 placeholder:text-fg-faint"
             />
             <div className="mt-4 flex flex-wrap gap-2">
               {examples.map((ex) => (

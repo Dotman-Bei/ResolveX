@@ -185,23 +185,23 @@ export default function MarketDetail() {
                     .map((b, i) => (
                       <li
                         key={i}
-                        className="grid grid-cols-[1fr_auto_auto] items-center gap-2 sm:gap-4 py-2.5 px-3 -mx-3 rounded-lg hover:bg-bg-elevated transition-colors text-sm"
+                        className="flex items-center justify-between gap-2 sm:gap-4 py-2.5 px-3 -mx-3 rounded-lg hover:bg-bg-elevated transition-colors text-sm"
                       >
-                        <span className="num text-xs text-fg-muted">
+                        <span className="num text-[11px] sm:text-xs text-fg-muted truncate">
                           {shortAddr(b.user)}
                         </span>
-                        <span
-                          className={
-                            b.side === "YES"
-                              ? "chip-yes"
-                              : "chip-no"
-                          }
-                        >
-                          {b.side}
-                        </span>
-                        <span className="num text-xs text-fg-muted">
-                          {formatGen(BigInt(b.amount))} GEN
-                        </span>
+                        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                          <span
+                            className={
+                              b.side === "YES" ? "chip-yes" : "chip-no"
+                            }
+                          >
+                            {b.side}
+                          </span>
+                          <span className="num text-[11px] sm:text-xs text-fg-muted whitespace-nowrap">
+                            {formatGen(BigInt(b.amount))} GEN
+                          </span>
+                        </div>
                       </li>
                     ))}
                 </ul>

@@ -173,17 +173,17 @@ function WalletRow({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={icon} alt={name} className="size-7 object-contain" />
       </span>
-      <span className="flex-1 text-left">
-        <span className="flex items-center gap-2">
-          <span className="text-sm font-medium">{name}</span>
+      <span className="flex-1 text-left min-w-0">
+        <span className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm font-medium truncate">{name}</span>
           {recommended && (
-            <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-accent">
+            <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-accent shrink-0">
               <Sparkles className="size-3" />
               Recommended
             </span>
           )}
         </span>
-        <span className="text-[11px] text-fg-dim block mt-0.5">
+        <span className="text-[11px] text-fg-dim block mt-0.5 truncate">
           {note ?? (installed ? "Detected in browser" : "Not installed — click to get it")}
         </span>
       </span>

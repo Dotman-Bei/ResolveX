@@ -111,7 +111,7 @@ export function BetModal({
                   min="0"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="input num text-xl"
+                  className="input num text-lg sm:text-xl"
                   placeholder="0.0"
                 />
 

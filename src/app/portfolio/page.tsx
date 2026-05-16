@@ -121,8 +121,8 @@ export default function PortfolioPage() {
                   className="grid grid-cols-[1fr_auto] items-center gap-3 sm:gap-4 p-4 sm:p-5 border-b border-border last:border-0 hover:bg-bg-elevated transition-colors group"
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-medium">{m.question}</p>
-                    <p className="text-xs text-fg-dim mt-1 num">
+                    <p className="truncate font-medium text-sm sm:text-base">{m.question}</p>
+                    <p className="text-[11px] sm:text-xs text-fg-dim mt-1 num truncate">
                       on {sides} · {m.bets.length} total bets
                     </p>
                   </div>
@@ -167,8 +167,8 @@ function BigStat({
   accent?: boolean;
 }) {
   return (
-    <div className="bg-bg-card p-5 sm:p-7">
-      <div className={`num text-2xl sm:text-4xl ${accent ? "text-accent" : "text-fg"}`}>
+    <div className="bg-bg-card p-4 sm:p-7">
+      <div className={`num text-xl sm:text-3xl md:text-4xl ${accent ? "text-accent" : "text-fg"}`}>
         <Counter to={value} decimals={decimals} suffix={suffix} />
       </div>
       <div className="text-[11px] uppercase tracking-[0.16em] text-fg-dim mt-2">
