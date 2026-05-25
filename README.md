@@ -15,7 +15,6 @@ ResolveX inverts the resolution model that every existing prediction market reli
 - **Resolution:** `gl.get_webpage()` + `gl.eq_principle_prompt_comparative()` inside a single transaction
 - **Frontend:** Next.js 14 (App Router), Tailwind, Zustand, Framer Motion
 - **SDK:** `genlayer-js` for reads/writes, `wagmi` + RainbowKit for wallets
-- **Mock mode:** in-memory store mirroring the live contract interface — full app runs without a wallet or RPC
 
 ## Resolution Workflow
 
